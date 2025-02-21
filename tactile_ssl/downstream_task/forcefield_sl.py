@@ -1,8 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-#
-# This source code is licensed under the CC-BY-NC 4.0 license found in the
-# LICENSE file in the root directory of this source tree.
-
 from typing import Any, Dict, Tuple, Optional, List, Union
 from matplotlib.axes import SubplotBase
 from numpy.typing import NDArray
@@ -183,6 +178,7 @@ class ForceFieldModule(SLModule):
     def training_step(self, batch: Dict[str, Any], batch_idx: int) -> Dict:
         outputs = {'normal': None, 'shear': None}
 
+
         # forward pass for normal
         x = batch["image_bg"]
         outputs_normal = self.forward(x, mode="normal")
@@ -195,6 +191,7 @@ class ForceFieldModule(SLModule):
         outputs['shear'] = outputs_shear['shear']
 
         outputs.update(output_poses)
+        # outputs.update(outputs_forces)
 
         # apply reprojection
         self.generate_images_pred(x, outputs)
@@ -209,7 +206,7 @@ class ForceFieldModule(SLModule):
             mask = batch["mask"][:, None, :, :]
             normal = outputs["normal"]
             normal_loss = F.smooth_l1_loss(normal, mask * normal)
-            outputs["loss"] += normal_loss
+            outputs["loss"] += normal_loss  # + shear_loss
             outputs["normal_loss"] += normal_loss
 
         if self.with_sl_supervision:
@@ -229,9 +226,9 @@ class ForceFieldModule(SLModule):
         img_sz = self.ssl_config["img_sz"]
         normal_unmask = outputs["normal"].squeeze(1)
         shear = outputs["shear"]
-        f_z = normal_unmask
-        f_x = shear[:, 0, :, :]
-        f_y = shear[:, 1, :, :]
+        f_z = normal_unmask  # * mask
+        f_x = shear[:, 0, :, :]  # * mask
+        f_y = shear[:, 1, :, :]  # * mask
 
         # sum over the batch
         f_x = f_x.sum(dim=[1, 2]) / (img_sz * img_sz)
@@ -246,6 +243,8 @@ class ForceFieldModule(SLModule):
         """Generate the warped (reprojected) color images for a minibatch.
         Generated images are saved into the `outputs` dictionary.
         """
+        scale = 0
+        source_scale = 0
 
         shear = outputs["shear"].float()
         outputs["flow"] = flow_to_image(shear)

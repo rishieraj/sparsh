@@ -1,8 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-#
-# This source code is licensed under the CC-BY-NC 4.0 license found in the
-# LICENSE file in the root directory of this source tree.
-
 import os
 import hydra
 import numpy as np
@@ -41,13 +36,14 @@ def demo(cfg: DictConfig):
         config=cfg,
     )
 
+    demo.init()
     demo.run_model()
     print("*** Demo finished ***")
 
 
 @hydra.main(version_base="1.3", config_path="config")
 def main(cfg: DictConfig):
-    exp_name = f"{cfg.sensor}_{cfg.task_name}_{cfg.ssl_name}_vit{cfg.ssl_model_size}" 
+    exp_name = f"{cfg.sensor}_{cfg.task_name}_{cfg.ssl_name}_vit{cfg.ssl_model_size}_{cfg.train_data_budget}" 
     path_outputs = cfg.paths.output_dir
     path_ckpt_encoders = cfg.task.checkpoint_encoder
 

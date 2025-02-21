@@ -64,14 +64,14 @@ test:
     _partial_: True
     _target_: tactile_ssl.test.DemoForceField
     digit_serial: ~
-    gelsight_device_id: 5
+    gelsight_device_id: 4
   path_outputs: ~
 
 
 # DINO
 task:
-  _target_: tactile_ssl.downstream_task.ForceFieldModule
-  checkpoint_task: ~
+  _target_: tactile_ssl.downstream_task.ForceFieldModuleSL
+  checkpoint_task: /media/chiguera/GUM/tactile_ssl/outputs_sparsh/digit_t1_forcefield_dino_vitbase_bg/checkpoints/epoch-0031.pth
 
   model_encoder:
     _target_: tactile_ssl.model.vit_${ssl_model_size}
@@ -81,7 +81,7 @@ task:
     num_register_tokens: 1
 
   model_task:
-    _target_: tactile_ssl.downstream_task.ForceFieldDecoder
+    _target_: tactile_ssl.downstream_task.ForceFieldDecoderSL
     embed_dim: ${ssl_model_size}
 
   ssl_config:

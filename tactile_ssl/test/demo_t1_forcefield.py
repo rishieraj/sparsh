@@ -1,8 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-#
-# This source code is licensed under the CC-BY-NC 4.0 license found in the
-# LICENSE file in the root directory of this source tree.
-
 import io
 import os
 import time
@@ -25,6 +20,7 @@ from .test_task import TestTaskSL
 
 from tactile_ssl.data.vision_based_interactive import DemoForceFieldData
 from tactile_ssl.data.digit.utils import compute_diff
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class DemoForceField(TestTaskSL):
     def __init__(
@@ -40,8 +36,6 @@ class DemoForceField(TestTaskSL):
         )
         self.digit_serial = digit_serial
         self.gelsight_device_id = gelsight_device_id
-
-        self.init()
     
     def init(self):
         self.sensor = self.config.sensor
@@ -69,6 +63,7 @@ class DemoForceField(TestTaskSL):
         heightmap = heightmap * 255
         bg_template = bg_template * 255
 
+        init_height = bg_template[b:-b, b:-b]
         diff_heights = heightmap
         diff_heights[diff_heights < clip] = 0
         threshold = torch.quantile(diff_heights, 0.9) * r
@@ -200,11 +195,6 @@ class DemoForceField(TestTaskSL):
         cv2.namedWindow("sparsh", cv2.WINDOW_NORMAL)
         init_done = False
 
-        print("Sparsh demo starting. Press 'q' to exit the demo. \n")
-
-        print("Starting range calibration ...")
-        print("Please do not touch the sensor.")
-
         for _ in range (5):
             sample = self.sensor_handler.get_model_inputs()
             img_fg = sample["image"][0:3].permute(1, 2, 0).cpu().numpy()
@@ -276,7 +266,6 @@ class DemoForceField(TestTaskSL):
             if not init_done:
                 self._init_shear(shear, normal)
                 init_done = True
-                print("Calibration completed.")
             
             im_shear = self.update_shear(shear, normal)
             
@@ -296,11 +285,13 @@ class DemoForceField(TestTaskSL):
             im_normal = cv2.copyMakeBorder(im_normal, b, b, b, b, cv2.BORDER_CONSTANT, value=[255, 255, 255])
             im_shear = cv2.copyMakeBorder(im_shear, b, b, b, b, cv2.BORDER_CONSTANT, value=[255, 255, 255])
 
+            # add txt to images. Top center
             font = cv2.FONT_HERSHEY_SIMPLEX
             org = (15, 35)
             pos_top = (int(120*2.8),  35)
             pos_down = (int(120*2.8), 320*3)
             fontScale = 1.0
+            color = (0, 0, 0)
             color2 = (255, 255, 255)
             thickness = 2
             current_tactile_image = cv2.putText(current_tactile_image, self.sensor_handler.sensor, org, font, fontScale, color2, thickness, cv2.LINE_AA)
@@ -310,7 +301,10 @@ class DemoForceField(TestTaskSL):
             
             im_normal = cv2.putText(im_normal, 'Normal', org, font, fontScale, color2, thickness, cv2.LINE_AA)
             im_shear = cv2.putText(im_shear, 'Shear', org, font, fontScale, color2, thickness, cv2.LINE_AA)
+
+            # concatenate images horizontally
             im_h = cv2.hconcat([current_tactile_image, im_normal, im_shear])
+
 
             cv2.imshow('sparsh', im_h)
             if cv2.waitKey(1) & 0xFF == ord('q'):

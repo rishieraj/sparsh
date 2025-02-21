@@ -56,7 +56,7 @@ data:
 
 test:
   data:
-    dataset_name: ["005_tomato_soup_can/dataset_4"]
+    dataset_name: ["005_tomato_soup_can/dataset_0"]
     batch_size: 1
   tester:
     _partial_: True
@@ -71,7 +71,7 @@ test:
 
 # DINO
 task:
-  _target_: tactile_ssl.downstream_task.ForceFieldModule
+  _target_: tactile_ssl.downstream_task.ForceFieldModuleSL
   checkpoint_task: ~
 
   model_encoder:
@@ -82,7 +82,7 @@ task:
     num_register_tokens: 1
 
   model_task:
-    _target_: tactile_ssl.downstream_task.ForceFieldDecoder
+    _target_: tactile_ssl.downstream_task.ForceFieldDecoderSL
     embed_dim: ${ssl_model_size}
 
   ssl_config:
