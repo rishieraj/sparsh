@@ -316,14 +316,14 @@ For testing Sparsh(DINO) + force field decoder live, you only need one DIGIT or 
 5. Running the demo for DIGIT:
 
 ```bash
-python demo_forcefield.py +experiment=digit/downstream_task/forcefield/digit_dino paths=${YOUR_PATH_CONFIG} paths.output_dir=${YOUR_PATH}/outputs_sparsh/checkpoints/ test.demo.digit_serial=${YOUR_DIGIT_SERIAL}`
+python demo_forcefield.py +experiment=downstream_task/forcefield/digit_dino paths=${YOUR_PATH_CONFIG} paths.output_dir=${YOUR_PATH}/outputs_sparsh/checkpoints/ test.demo.digit_serial=${YOUR_DIGIT_SERIAL}`
 ```
 The DIGIT serial number is printed on the back of the sensor and has the format `DXXXXX`.
 
 6. Running the demo for GelSight Mini:
 
 ```bash
-python demo_forcefield.py +experiment=digit/downstream_task/forcefield/gelsight_dino paths=${YOUR_PATH_CONFIG} paths.output_dir=${YOUR_PATH}/outputs_sparsh/checkpoints/ test.demo.gelsight_device_id=${YOUR_GELSIGHT_VIDEO_ID}`
+python demo_forcefield.py +experiment=downstream_task/forcefield/gelsight_dino paths=${YOUR_PATH_CONFIG} paths.output_dir=${YOUR_PATH}/outputs_sparsh/checkpoints/ test.demo.gelsight_device_id=${YOUR_GELSIGHT_VIDEO_ID}`
 ```
 
 The GelSight Mini is recognized as a webcam. You can get the video ID by checking in a terminal `ls -l /dev/video*`.
