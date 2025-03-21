@@ -7,7 +7,18 @@ We are using the pre-trained encoders and training the decoders for downstream t
 
 2. Download the dataset for force estimation task [here](https://drive.google.com/file/d/1c8YyoMmQObfE5f8rBRMl_yF2gYoCNIpH/view?usp=sharing) and place it at `sparsh/datasets/tacbench_data/`
 
-3. Olso create files `sparsh/logs/` and `sparsh/output` for storing the training logs and outputs.
+3. Also create files `sparsh/logs/` and `sparsh/output` for storing the training logs and outputs.
+
+4. Create a conda environment with the following dependencies
+```bash
+mamba env create -f environment.yml
+mamba activate tactile_ssl
+``` 
+
+5. Use this script for training the decoder for the above task
+```bash
+python train_task.py --config-name=experiment/downstream_task/force/digit_dino.yaml paths=exp1.yaml wandb=exp1.yaml
+```
 
 ---
 
