@@ -1,3 +1,16 @@
+# Implementation for Experimental Study
+This is a fork of the original repository for testing the robustness and failure cases of *Sparsh*.
+
+We are using the pre-trained encoders and training the decoders for downstream tasks. Please follow the following instructions for training for a single application case:
+
+1. Download the pre-trained encoder [weights](https://drive.google.com/file/d/163djWdqyaFBSLI1yCUJvGpwaudwlUxbT/view?usp=sharing) for *dino-base* and store them at `sparsh/weights/sparsh-dino-base/`. 
+
+2. Download the dataset for force estimation task [here](https://drive.google.com/file/d/1c8YyoMmQObfE5f8rBRMl_yF2gYoCNIpH/view?usp=sharing) and place it at `sparsh/datasets/tacbench_data/`
+
+3. Olso create files `sparsh/logs/` and `sparsh/output` for storing the training logs and outputs.
+
+---
+
 # Sparsh: Self-supervised touch representations for vision-based tactile sensing
 
 

@@ -1,0 +1,8 @@
+project: tactile_ssl
+entity: rishie-raj27-university-of-maryland
+save_dir: ${paths.output_dir}
+id: ${hydra:job.id}_${experiment_name} # Pass correct id to resume a run
+resume_id: ${hydra:job.id}_${experiment_name}
+tags: []
+group: ${experiment_name}
+notes: ~

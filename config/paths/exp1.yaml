@@ -1,0 +1,5 @@
+data_root: datasets/
+encoder_checkpoint_root: weights/sparsh-dino-base
+tacbench_dir: tacbench/ 
+log_dir: logs/
+output_dir: output/
