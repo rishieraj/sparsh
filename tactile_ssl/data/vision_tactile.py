@@ -29,13 +29,13 @@ DEBUG = False
 class VisionTactileBackboneDataset(data.Dataset):
     def __init__(
         self,
+        sensor: str,
         config: DictConfig,
-        dataset_name: str,
-        sensor_type: Literal["digit", "gelsight", "gelsight_mini"] = "digit",
+        dataset_name: str
     ):
         super().__init__()
         self.config = config
-        self.sensor_type = self.config.sensor
+        self.sensor_type = sensor
         self.dataset_name = dataset_name
 
         assert self.sensor_type in ["digit", "gelsight", "gelsight_mini"], ValueError(

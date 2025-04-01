@@ -7,7 +7,7 @@ sensor: digit
 dataset:
   _target_: tactile_ssl.data.vision_tactile_forcefield.VisionTactileForceFieldDataset
   config:
-    sensor: ${data.sensor}
+    sensor: digit
     remove_bg: true
     out_format: "concat_ch_img" # ["video", "concat_ch_img"  "single_image"]
     num_frames: 2 # num frames in input (for video and concat_ch_img format)

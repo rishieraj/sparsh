@@ -74,7 +74,7 @@ def get_dataloaders_vision_based(cfg: DictConfig):
     val_dset = []
 
     for i in range(n_sensors):
-        sensor_cfg = data_cfg.sensor[i]
+        sensor_cfg = data_cfg.sensor
 
         if sensor_cfg.type == "digit" or sensor_cfg.type == "gelsight_mini":
             list_datasets = sensor_cfg.dataset.config.list_datasets
@@ -86,7 +86,7 @@ def get_dataloaders_vision_based(cfg: DictConfig):
                     dataset_name = obj + "/dataset_" + str(d_id)
                     dataset = hydra.utils.instantiate(
                         sensor_cfg.dataset,
-                        sensor_type=sensor_cfg.type,
+                        sensor=sensor_cfg.type,
                         dataset_name=dataset_name,
                     )
                     train_dset.append(dataset)
@@ -94,7 +94,7 @@ def get_dataloaders_vision_based(cfg: DictConfig):
                     dataset_name = obj + "/dataset_" + str(d_id)
                     dataset = hydra.utils.instantiate(
                         sensor_cfg.dataset,
-                        sensor_type=sensor_cfg.type,
+                        sensor=sensor_cfg.type,
                         dataset_name=dataset_name,
                     )
                     val_dset.append(dataset)
@@ -109,7 +109,7 @@ def get_dataloaders_vision_based(cfg: DictConfig):
                     dataset_name = obj + "/" + file.split(".")[0]
                     dataset = hydra.utils.instantiate(
                         sensor_cfg.dataset,
-                        sensor_type=sensor_cfg.type,
+                        sensor=sensor_cfg.type,
                         dataset_name=dataset_name,
                     )
                     all_datasets.append(dataset)
@@ -175,6 +175,11 @@ def attempt_resume(cfg: DictConfig):
         return True, cfg
     return False, cfg
 
+def save_embeddings(embeddings, filenames, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    np.savez(os.path.join(output_dir, "embeddings.npz"), 
+             embeddings=embeddings,
+             filenames=filenames)
 
 def train(cfg: DictConfig):
     resume_state, cfg = attempt_resume(cfg)
@@ -202,8 +207,38 @@ def train(cfg: DictConfig):
 
     logger.info(f"Instantiating model <{cfg.model._target_}>")
     model = hydra.utils.instantiate(cfg.model)
+    
+    # Load checkpoint ============== ADD THIS ==============
+    if cfg.ckpt_path:
+        logger.info(f"Loading weights from {cfg.ckpt_path}")
+        checkpoint = torch.load(cfg.ckpt_path)
+        model.load_state_dict(checkpoint["model"])
+    
+    # Run inference ============== MODIFIED SECTION ==============
+    model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    
+    all_embeddings = []
+    all_filenames = []
+    
+    with torch.no_grad():
+        for batch in val_dataloader:
+            # Assuming batch contains images and filenames
+            images = batch["image"].to(device)
+            filenames = batch["filename"]  # Modify based on your dataset
+            
+            # Get embeddings - modify based on your model architecture
+            embeddings = model.encoder(images)  # Or model.get_embeddings(images)
+            
+            all_embeddings.append(embeddings.cpu().numpy())
+            all_filenames.extend(filenames)
+    
+    # Concatenate and save
+    all_embeddings = np.concatenate(all_embeddings)
+    save_embeddings(all_embeddings, all_filenames, cfg.paths.output_dir)
 
-    trainer.fit(model, train_dataloader, val_dataloader, ckpt_path=cfg.ckpt_path)
+    # trainer.fit(model, train_dataloader, val_dataloader, ckpt_path=cfg.ckpt_path)
 
     wandb.finish()
 
